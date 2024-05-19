@@ -1,8 +1,12 @@
 import express, { Express,Request,Response } from "express";
+import globalErrorHandler from "./error/errorMiddlewares";
+import bodyParser from "body-parser";
+import SongRouter from "./routes/SongRoute";
 const app:Express = express();
 
-app.get("/",(req:Request,res:Response)=>{
-    res.send("Express and ts")
-});
+app.use(bodyParser.json());
+
+app.use('/api/v1/songs', SongRouter);
+app.use(globalErrorHandler);
 
 export default app;

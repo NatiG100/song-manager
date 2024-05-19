@@ -13,7 +13,7 @@ const SongSchema = new Schema({
         type:String,
         required:true,
     },
-    gener:{
+    genre:{
         type:String,
         required:true,
     },

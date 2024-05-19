@@ -1,6 +1,17 @@
 import app from './app';
 import appConfig from './config';
-app.listen(appConfig.server.port, ()=>{
-    console.log(`[server]: Server is running at http://localhost:${appConfig.server.port}`);
+import mongoose from 'mongoose';
+
+main().then(()=>{
+    app.listen(appConfig.server.port, ()=>{
+        console.log(`[server]: Server is running at http://localhost:${appConfig.server.port}`);
+    })
+}).catch(err=>{
+    console.log("Error while connecting to the database");
+    console.log(err);
 })
+
+async function main(){
+    await mongoose.connect(appConfig.db.mongoDbConnection);
+}
 

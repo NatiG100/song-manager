@@ -15,7 +15,7 @@ export default class SongService{
         }
         return song;
     }
-    static async updateSong({id,...song}:UpdateSongDto):Promise<SongDto>{
+    static async updateSong(id:string,song:UpdateSongDto):Promise<SongDto>{
         const songToBeUpdated = await SongModel.findById(id);
         if(!songToBeUpdated){
             throw Error("");
