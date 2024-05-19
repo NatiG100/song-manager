@@ -19,7 +19,7 @@ export default class SongController{
         try{
             const limit = parseInt(req.query.limit);
             const skip = parseInt(req.query.skip);
-            if(!limit||!skip){
+            if((!limit&&limit!==0)||!skip&&skip!==0){
                 const errors:string[]=[];
                 if(!limit)errors.push('limit');
                 if(!skip)errors.push('skip')
@@ -34,25 +34,37 @@ export default class SongController{
             next(err);
         }
     }
-    static async getSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>){
-        const song = await SongService.getSong(req.params.songId);
-        res.status(200).send({
-            data:song,
-            message:"Fetched Song",
-        })
+    static async getSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
+        try{
+            const song = await SongService.getSong(req.params.songId);
+            res.status(200).send({
+                data:song,
+                message:"Fetched Song",
+            })
+        }catch(err){
+            next(err);
+        }
     }
-    static async updateSong(req:Request<{songId:string},any,UpdateSongDto>,res:Response<ResponseBody<SongDto>>){
-        const updatedSong = await SongService.updateSong(req.params.songId,req.body);
-        res.status(200).send({
-            data:updatedSong,
-            message:"Song updated successfully"
-        });
+    static async updateSong(req:Request<{songId:string},any,UpdateSongDto>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
+        try{
+            const updatedSong = await SongService.updateSong(req.params.songId,req.body);
+            res.status(200).send({
+                data:updatedSong,
+                message:"Song updated successfully"
+            });
+        }catch(err){
+            next(err)
+        }
     }
-    static async deleteSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>){
-        const deletedSong = await SongService.deleteSong(req.params.songId);
-        res.status(299).send({
-            data:deletedSong,
-            message:"Song deleted successfully",
-        });
+    static async deleteSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
+        try{
+            const deletedSong = await SongService.deleteSong(req.params.songId);
+            res.status(299).send({
+                data:deletedSong,
+                message:"Song deleted successfully",
+            });
+        }catch(err){
+            next(err);
+        }
     }
 }

@@ -1,4 +1,5 @@
 import SongDto, { Pagination,UpdateSongDto } from "../entities/Song";
+import AppError from "../error/AppError";
 import SongModel from "../models/SongMode";
 
 export default class SongService{
@@ -11,23 +12,24 @@ export default class SongService{
     static async getSong(id:string):Promise<SongDto>{
         const song = await SongModel.findById(id);
         if(!song){
-            throw Error("");
+            throw new AppError(`Song with an id of "${id}" doesn't exist`,404);
         }
         return song;
     }
     static async updateSong(id:string,song:UpdateSongDto):Promise<SongDto>{
         const songToBeUpdated = await SongModel.findById(id);
         if(!songToBeUpdated){
-            throw Error("");
+            throw new AppError(`Song with an id of "${id}" doesn't exist`,404);
         }
-        const updatedSong = await SongModel.findByIdAndUpdate(id,{...song,updatedAt:Date.now()});
+        await SongModel.findByIdAndUpdate(id,{...song,updatedAt:Date.now()});
+        const updatedSong = await SongModel.findById(id);
         return updatedSong!;
 
     }
     static async deleteSong(id:string):Promise<SongDto>{
         const songToBeUpdated = await SongModel.findById(id);
         if(!songToBeUpdated){
-            throw Error("");
+            throw new AppError(`Song with an id of "${id}" doesn't exist`,404);
         }
         const deletedSong = await SongModel.findByIdAndDelete(id);
         return deletedSong!;
