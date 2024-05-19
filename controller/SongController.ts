@@ -3,10 +3,15 @@ import SongService from '../services/SongServices';
 import SongDto, { UpdateSongDto } from '../entities/Song';
 import { ResponseBody } from '../types';
 import AppError from '../error/AppError';
+import { io } from '..';
+import { NEW_STAT_GENERATED, SONG_CREATED, SONG_DELETED, SONG_UPDATED } from '../constants/events';
+import StatService from '../services/StatServices';
 export default class SongController{
     static async createSong(req:Request<any,any,SongDto,any>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
         try{
             const createdSong =  await SongService.createSong(req.body);
+            io.sockets.emit(SONG_CREATED,createdSong);
+            io.sockets.emit(NEW_STAT_GENERATED, await StatService.generalStat());
             res.status(201).send({
                 data:createdSong,
                 message:"Successfully Created a song"
@@ -37,6 +42,7 @@ export default class SongController{
     static async getSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
         try{
             const song = await SongService.getSong(req.params.songId);
+            
             res.status(200).send({
                 data:song,
                 message:"Fetched Song",
@@ -48,6 +54,8 @@ export default class SongController{
     static async updateSong(req:Request<{songId:string},any,UpdateSongDto>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
         try{
             const updatedSong = await SongService.updateSong(req.params.songId,req.body);
+            io.sockets.emit(SONG_UPDATED,updatedSong);
+            io.sockets.emit(NEW_STAT_GENERATED, await StatService.generalStat())
             res.status(200).send({
                 data:updatedSong,
                 message:"Song updated successfully"
@@ -59,6 +67,8 @@ export default class SongController{
     static async deleteSong(req:Request<{songId:string}>,res:Response<ResponseBody<SongDto>>,next:NextFunction){
         try{
             const deletedSong = await SongService.deleteSong(req.params.songId);
+            io.sockets.emit(SONG_DELETED,deletedSong);
+            io.sockets.emit(NEW_STAT_GENERATED, await StatService.generalStat())
             res.status(299).send({
                 data:deletedSong,
                 message:"Song deleted successfully",
