@@ -20,7 +20,7 @@ export default class SongController{
             next(err);
         }
     }
-    static async getAllSong(req:Request<any,any,any,{limit:string,skip:string}>,res:Response<ResponseBody<SongDto[]>>,next:NextFunction){
+    static async getAllSong(req:Request<any,any,any,{limit:string,skip:string}>,res:Response<ResponseBody<{items:SongDto[],count:number}>>,next:NextFunction){
         try{
             const limit = parseInt(req.query.limit);
             const skip = parseInt(req.query.skip);
@@ -31,8 +31,12 @@ export default class SongController{
                 throw new AppError(`Invalid pagination data: ${errors}`,400);
             }
             const allSongs = await SongService.getAllSongs({limit,skip});
+            const numberOfSongs = await SongService.count();
             res.status(200).send({
-                data:allSongs,
+                data:{
+                    items:allSongs,
+                    count:numberOfSongs,
+                },
                 message:"Fetched Songs"
             });
         }catch(err){

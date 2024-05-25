@@ -9,6 +9,9 @@ export default class SongService{
     static async getAllSongs({limit,skip}:Pagination):Promise<SongDto[]>{
         return await SongModel.find({},undefined,{limit,skip})
     }
+    static async count(){
+        return await SongModel.estimatedDocumentCount();
+    }
     static async getSong(id:string):Promise<SongDto>{
         const song = await SongModel.findById(id);
         if(!song){
