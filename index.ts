@@ -5,7 +5,7 @@ import http from 'http';
 
 const server = http.createServer(app);
 import { Server } from 'socket.io';
-export const io = new Server(server);
+export const io = new Server(server,{cors:{origin:'*'}});
 
 
 main().then(()=>{

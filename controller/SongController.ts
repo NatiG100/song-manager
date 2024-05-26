@@ -1,6 +1,6 @@
 import {NextFunction, Request,RequestHandler,Response} from 'express';
 import SongService from '../services/SongServices';
-import SongDto, { UpdateSongDto } from '../entities/Song';
+import SongDto, { TSongFilter, UpdateSongDto } from '../entities/Song';
 import { ResponseBody } from '../types';
 import AppError from '../error/AppError';
 import { io } from '..';
@@ -20,18 +20,23 @@ export default class SongController{
             next(err);
         }
     }
-    static async getAllSong(req:Request<any,any,any,{limit:string,skip:string}>,res:Response<ResponseBody<{items:SongDto[],count:number}>>,next:NextFunction){
+    static async getAllSong(
+        req:Request<any,any,any,{limit:string,skip:string}&TSongFilter>,
+        res:Response<ResponseBody<{items:SongDto[],count:number}>>,
+        next:NextFunction
+    ){
         try{
             const limit = parseInt(req.query.limit);
             const skip = parseInt(req.query.skip);
+            const {limit:l,skip:s,...filter} = req.query;
             if((!limit&&limit!==0)||!skip&&skip!==0){
                 const errors:string[]=[];
                 if(!limit)errors.push('limit');
                 if(!skip)errors.push('skip')
                 throw new AppError(`Invalid pagination data: ${errors}`,400);
             }
-            const allSongs = await SongService.getAllSongs({limit,skip});
-            const numberOfSongs = await SongService.count();
+            const allSongs = await SongService.getAllSongs({limit,skip,filter});
+            const numberOfSongs = await SongService.count({filter});
             res.status(200).send({
                 data:{
                     items:allSongs,

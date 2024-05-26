@@ -1,4 +1,4 @@
-import SongDto, { Pagination,UpdateSongDto } from "../entities/Song";
+import SongDto, { Pagination,TSongFilter,UpdateSongDto } from "../entities/Song";
 import AppError from "../error/AppError";
 import SongModel from "../models/SongMode";
 
@@ -6,11 +6,26 @@ export default class SongService{
     static async createSong(song:SongDto):Promise<SongDto>{
         return await SongModel.create(song);
     }
-    static async getAllSongs({limit,skip}:Pagination):Promise<SongDto[]>{
-        return await SongModel.find({},undefined,{limit,skip})
+    static filterRx(filter?:string){
+        return new RegExp("^.*" + (filter||"")+".*$","i");
     }
-    static async count(){
-        return await SongModel.estimatedDocumentCount();
+    static getFilterOption(filter:TSongFilter){
+        return {
+            title:this.filterRx(filter.title),
+            album:this.filterRx(filter.album),
+            artist:this.filterRx(filter.artist),
+            genre:this.filterRx(filter.genre),
+        }
+    }
+    static async getAllSongs({limit,skip,filter}:Pagination&{filter:TSongFilter}):Promise<SongDto[]>{
+        return await SongModel.find(
+            this.getFilterOption(filter),
+            undefined,
+            {limit,skip}
+        )
+    }
+    static async count({filter}:{filter:TSongFilter}){
+        return await SongModel.countDocuments(this.getFilterOption(filter));
     }
     static async getSong(id:string):Promise<SongDto>{
         const song = await SongModel.findById(id);
